@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>IoT Smart Farm</title>
+
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .grid {
+
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+
+        }
+
+        .card {
+
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+
+        }
+
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .switch {
+
+            margin-top: 10px;
+
+        }
+
+        button {
+
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        .on {
+            background: #16a34a;
+            color: white;
+        }
+
+        .off {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="title">📡 Smart Farm Dashboard</div>
+
+    <div class="grid">
+
+        <div class="card">
+            🌡 Temperatur
+            <div id="suhu" class="value">0°C</div>
+        </div>
+
+        <div class="card">
+            💧 Kelembaban
+            <div id="hum" class="value">0%</div>
+        </div>
+
+        <div class="card">
+            🎚 Potensiometer
+            <div id="pot" class="value">0</div>
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="grid">
+
+        <div class="card">
+
+            💡 LED 1
+
+            <div class="switch">
+
+                <button class="on" onclick="led1('ON')">ON</button>
+
+                <button class="off" onclick="led1('OFF')">OFF</button>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            💡 LED 2
+
+            <div class="switch">
+
+                <button class="on" onclick="led2('ON')">ON</button>
+
+                <button class="off" onclick="led2('OFF')">OFF</button>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            💡 LED 3
+
+            <div class="switch">
+
+                <button class="on" onclick="led3('ON')">ON</button>
+
+                <button class="off" onclick="led3('OFF')">OFF</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const client = mqtt.connect("ws://broker.avisha.id:8083/mqtt", {
+            username: "AsepFarm",
+            password: "041974"
+        })
+
+        client.on("connect", function () {
+
+            console.log("MQTT Connected")
+
+            client.subscribe("AsepFarm/sensor/suhu")
+            client.subscribe("AsepFarm/sensor/hum")
+            client.subscribe("AsepFarm/sensor/pot")
+
+        })
+
+        client.on("message", function (topic, message) {
+
+            let data = message.toString()
+
+            if (topic == "AsepFarm/sensor/suhu") {
+                document.getElementById("suhu").innerHTML = data + " °C"
+            }
+
+            if (topic == "AsepFarm/sensor/hum") {
+                document.getElementById("hum").innerHTML = data + " %"
+            }
+
+            if (topic == "AsepFarm/sensor/pot") {
+                document.getElementById("pot").innerHTML = data
+            }
+
+        })
+
+        function led1(state) {
+            client.publish("AsepFarm/led1", state)
+        }
+
+        function led2(state) {
+            client.publish("AsepFarm/led2", state)
+        }
+
+        function led3(state) {
+            client.publish("AsepFarm/led3", state)
+        }
+
+    </script>
+
+</body>
+
+</html>
